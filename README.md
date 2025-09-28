@@ -3,8 +3,8 @@
 A real-time group chat application built with Node.js, Express, Socket.IO, and MySQL. Features an iPhone-style interface with anonymous messaging capabilities.
 
 ![Chat App Preview]
-<img width="407" height="889" alt="image" src="https://github.com/user-attachments/assets/0da91d21-8a39-4743-8f0a-6460cc394ffc" />
-<img width="418" height="888" alt="image" src="https://github.com/user-attachments/assets/3ef55aeb-e3a2-4c20-b2bc-657a54ab70a3" />
+<img width="207" height="689" alt="image" src="https://github.com/user-attachments/assets/0da91d21-8a39-4743-8f0a-6460cc394ffc" />
+<img width="218" height="688" alt="image" src="https://github.com/user-attachments/assets/3ef55aeb-e3a2-4c20-b2bc-657a54ab70a3" />
 
 
 ## Features
