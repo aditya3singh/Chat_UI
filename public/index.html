@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fun Friday Group Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .chat-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: white;
+            border-bottom: 1px solid #e0e0e0;
+            position: relative;
+        }
+
+        .status-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            background-color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            color: #333;
+            margin-top: 44px;
+        }
+
+        .group-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            margin-left: 10px;
+            margin-top: 44px;
+        }
+
+        .group-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 12px;
+        }
+
+        .group-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #B71C1C;
+        }
+
+        .anonymous-toggle {
+            background: #B71C1C;
+            border: 2px solid #B71C1C;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-top: 44px;
+            margin-right: 5px;
+        }
+
+        .anonymous-icon {
+            color: white;
+            font-size: 18px;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 15px;
+            background-color: #f8f8f8;
+        }
+
+        .date-divider {
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+            margin: 20px 0;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.own {
+            justify-content: flex-end;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .message.own .message-avatar {
+            display: none;
+        }
+
+        .message-content {
+            max-width: 70%;
+        }
+
+        .message.own .message-content {
+            max-width: 85%;
+        }
+
+        .message-sender {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .message.own .message-sender {
+            display: none;
+        }
+
+        .message-bubble {
+            background-color: #e9ecef;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 16px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .message.own .message-bubble {
+            background-color: #B71C1C;
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .message.own .message-time {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .message-status {
+            display: inline-block;
+            margin-left: 5px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .input-container {
+            padding: 15px;
+            background-color: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            background-color: #f8f8f8;
+        }
+
+        .message-input:focus {
+            border-color: #B71C1C;
+            background-color: white;
+        }
+
+        .send-button {
+            width: 44px;
+            height: 44px;
+            background-color: #B71C1C;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .send-button:hover:not(:disabled) {
+            background-color: #8F1515;
+        }
+
+        .send-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .send-button svg {
+            fill: white;
+            width: 20px;
+            height: 20px;
+        }
+
+        .attachment-button {
+            width: 44px;
+            height: 44px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .anonymous-status {
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.05);
+            margin: 10px;
+            border-radius: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+
+        /* Scrollbar styling */
+        .messages-container::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .messages-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+
+        @media (max-width: 480px) {
+            .chat-container {
+                max-width: 100%;
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-left">9:41</div>
+            <div class="status-right">
+                <span>•••</span>
+                <span>📶</span>
+                <span>📶</span>
+                <span>🔋</span>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <button class="back-button">←</button>
+            <div class="group-info">
+                <div class="group-avatar" id="groupAvatar">🎉</div>
+                <div class="group-name" id="groupName">Fun Friday Group</div>
+            </div>
+            <button class="anonymous-toggle" id="anonymousToggle" title="Toggle Anonymous Mode">
+                <span class="anonymous-icon">👤</span>
+            </button>
+        </div>
+
+        <!-- Anonymous Status -->
+        <div class="anonymous-status" id="anonymousStatus" style="display: none;">
+            👤 Now you're appearing as Anonymous!
+        </div>
+
+        <!-- Messages Container -->
+        <div class="messages-container" id="messagesContainer">
+            <div class="loading">Loading messages...</div>
+        </div>
+
+        <!-- Input Container -->
+        <div class="input-container">
+            <button class="attachment-button">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/>
+                </svg>
+            </button>
+            <input type="text" class="message-input" id="messageInput" placeholder="Type a message ...">
+            <button class="send-button" id="sendButton" disabled>
+                <svg viewBox="0 0 24 24">
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        class ChatApp {
+            constructor() {
+                this.socket = io();
+                this.groupId = 1;
+                this.currentUserId = 2;
+                this.isAnonymous = false;
+                this.anonymousUserId = 1;
+                
+                this.initializeElements();
+                this.bindEvents();
+                this.loadGroupInfo();
+                this.loadMessages();
+                this.joinGroup();
+            }
+
+            initializeElements() {
+                this.messagesContainer = document.getElementById('messagesContainer');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendButton = document.getElementById('sendButton');
+                this.anonymousToggle = document.getElementById('anonymousToggle');
+                this.anonymousStatus = document.getElementById('anonymousStatus');
+                this.groupName = document.getElementById('groupName');
+                this.groupAvatar = document.getElementById('groupAvatar');
+            }
+
+            bindEvents() {
+                this.messageInput.addEventListener('input', () => {
+                    this.sendButton.disabled = !this.messageInput.value.trim();
+                });
+
+                this.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !this.sendButton.disabled) {
+                        this.sendMessage();
+                    }
+                });
+
+                this.sendButton.addEventListener('click', () => {
+                    if (!this.sendButton.disabled) {
+                        this.sendMessage();
+                    }
+                });
+
+                this.anonymousToggle.addEventListener('click', () => {
+                    this.toggleAnonymous();
+                });
+
+                this.socket.on('new_message', (message) => {
+                    this.addMessage(message);
+                    this.scrollToBottom();
+                });
+            }
+
+            toggleAnonymous() {
+                this.isAnonymous = !this.isAnonymous;
+                this.anonymousStatus.style.display = this.isAnonymous ? 'block' : 'none';
+                
+                if (this.isAnonymous) {
+                    this.anonymousToggle.style.backgroundColor = '#4CAF50';
+                    this.anonymousToggle.style.borderColor = '#4CAF50';
+                } else {
+                    this.anonymousToggle.style.backgroundColor = '#B71C1C';
+                    this.anonymousToggle.style.borderColor = '#B71C1C';
+                }
+            }
+
+            async loadGroupInfo() {
+                try {
+                    const response = await fetch(`/api/groups/${this.groupId}`);
+                    const group = await response.json();
+                    this.groupName.textContent = group.name;
+                    this.groupAvatar.textContent = group.avatar_url;
+                } catch (error) {
+                    console.error('Error loading group info:', error);
+                }
+            }
+
+            async loadMessages() {
+                try {
+                    const response = await fetch(`/api/groups/${this.groupId}/messages`);
+                    const messages = await response.json();
+                    this.messagesContainer.innerHTML = '';
+                    
+                    this.addDateDivider('8/20/2020');
+                    
+                    messages.forEach(message => {
+                        this.addMessage(message);
+                    });
+                    
+                    this.scrollToBottom();
+                } catch (error) {
+                    console.error('Error loading messages:', error);
+                    this.messagesContainer.innerHTML = '<div class="loading">Error loading messages</div>';
+                }
+            }
+
+            addDateDivider(date) {
+                const divider = document.createElement('div');
+                divider.className = 'date-divider';
+                divider.textContent = date;
+                this.messagesContainer.appendChild(divider);
+            }
+
+            addMessage(messageData) {
+                const messageEl = document.createElement('div');
+                messageEl.className = 'message';
+                
+                const currentUserId = this.isAnonymous ? this.anonymousUserId : this.currentUserId;
+                const isOwnMessage = messageData.user_id === currentUserId;
+                
+                if (isOwnMessage) {
+                    messageEl.classList.add('own');
+                }
+
+                const time = new Date(messageData.created_at).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                let avatarEmoji = '👤';
+                if (messageData.user_id === 2) avatarEmoji = '👨‍💼';
+                if (messageData.user_id === 3) avatarEmoji = '👨‍💻';
+
+                messageEl.innerHTML = `
+                    ${!isOwnMessage ? `
+                        <div class="message-avatar">${avatarEmoji}</div>
+                    ` : ''}
+                    <div class="message-content">
+                        ${!isOwnMessage ? `
+                            <div class="message-sender">${messageData.display_name}</div>
+                        ` : ''}
+                        <div class="message-bubble">
+                            ${this.escapeHtml(messageData.content)}
+                        </div>
+                        <div class="message-time">
+                            ${time}
+                            ${isOwnMessage ? '<span class="message-status">✓✓</span>' : ''}
+                        </div>
+                    </div>
+                `;
+
+                this.messagesContainer.appendChild(messageEl);
+            }
+
+            async sendMessage() {
+                const content = this.messageInput.value.trim();
+                if (!content) return;
+
+                const userId = this.isAnonymous ? this.anonymousUserId : this.currentUserId;
+
+                try {
+                    await fetch(`/api/groups/${this.groupId}/messages`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            content: content,
+                            userId: userId
+                        })
+                    });
+
+                    this.messageInput.value = '';
+                    this.sendButton.disabled = true;
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                }
+            }
+
+            joinGroup() {
+                this.socket.emit('join_group', this.groupId);
+            }
+
+            scrollToBottom() {
+                setTimeout(() => {
+                    this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+                }, 100);
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new ChatApp();
+        });
+    </script>
+</body>
+</html>
